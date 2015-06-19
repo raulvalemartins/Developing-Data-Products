@@ -1,0 +1,75 @@
+Developing Data Products - Project Presentation
+========================================================
+author: 
+date: June 19, 2015
+
+<small>
+Other links:
+- https://github.com/raulvalemartins/Developing-Data-Products
+- https://raulvalemartins.shinyapps.io/Project
+</small>
+
+Basic Scope
+========================================================
+<small>
+- **Survival of passengers on the Titanic:** This data set provides information on the fate of passengers on the fatal maiden voyage of the ocean liner 'Titanic', summarized according to economic status (class), sex, age and survival."),
+- **Source:** Dawson, Robert J. MacG. (1995), The \'Unusual Episode\' Data Revisited. Journal of Statistics Education, 3. http://www.amstat.org/publications/jse/v3n3/datasets.dawson.html"
+</small>
+
+Instructions
+========================================================
+<small>
+The instructions are so basic. You just need to press on the 'Application' panel and choose the fields for the 'X' and 'Y' axis of the barblot. You may also click on the 'Stacked Bars' check box to change the behavior of the graph. 
+You can return to this 'Instructions' page by pressing the 'Instructions' tab.
+This application shows always the total number of persons according to the selected criteria.
+</small>
+
+ui.R
+========================================================
+<small>
+
+```r
+library(shiny)
+dataset <- data.frame(Titanic)
+opt <- names(dataset)[-5]
+shinyUI(navbarPage("Titanic Data Set Explorer:",
+tabPanel("Instructions", 
+(...)   
+),
+tabPanel("Application",
+sidebarPanel(
+selectInput('x', 'X', opt, width = 150),
+selectInput('y', 'Y', opt, width = 150),
+checkboxInput('stacked', 'Staked Bars'),
+width = 3
+),
+mainPanel(plotOutput("plot"),
+          textOutput("tt"),
+          textOutput("nn")
+        ))))
+```
+</small>
+
+server.R
+========================================================
+<small>
+
+```r
+library(shiny); dataset <- data.frame(Titanic)
+opt <- names(dataset)[-5]
+function(input, output, session) {
+observeEvent(input$x,{index <- which(opt == input$x )
+ch <- opt[-index]
+updateSelectInput(session, "y", choices = ch)})
+output$plot <- renderPlot({
+if ( input$x != input$y ) {
+## - auxiliary computations
+i1 <- which(opt == input$x ); i2 <- which(opt == input$y )
+m <- apply(Titanic, c(i2, i1), sum)
+## - plot computation
+barplot(m, beside = !input$stacked, 
+main = paste("TITANIC DATA: '", input$x, "'' vs '", input$y, "'"  ), ylab = "Total of Persons", col=c(1:length(row.names(m))), 
+legend = row.names(m)[1:length(row.names(m))], args.legend = list(x ="topright"))}
+})}
+```
+</small>
